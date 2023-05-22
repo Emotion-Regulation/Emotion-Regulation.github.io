@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+#mainContainer {
+    text-align: center;
+}
+
+#videoPlayer {
+    margin-bottom: 1rem;
+}
+
+#fixationCross {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+button {
+    background-color: #333333;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+    margin: 0.25rem 0.5rem;
+    cursor: pointer;
+    border-radius: 0.25rem;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
