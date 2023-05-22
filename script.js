@@ -14,11 +14,107 @@ const videos = [
 ];
 
 let participantChoices = [];
-let startTime;  // New: Global variable to keep track of the time when buttons appear
+let startTime; 
 
-function startTimer() {  // New: Function to start the timer when buttons appear
+function startTimer() {  // Function to start the timer when buttons appear
     startTime = performance.now();
 }
+
+const feedbackContainer = document.getElementById("feedbackContainer");
+
+function createFeedbackForm(videoId, onSubmit) {
+    feedbackContainer.innerHTML = '';
+
+    const question = document.createElement("p");
+    question.textContent = "How interesting did you find this video?";
+
+    const slider = document.createElement("input");
+    slider.type = "range";
+    slider.min = 0;
+    slider.max = 7;
+    slider.value = 3;
+
+    const button = document.createElement("button");
+    button.innerText = "Submit";
+    button.onclick = () => {
+        const rating = slider.value;
+        onSubmit(rating);
+    };
+
+    feedbackContainer.appendChild(question);
+    feedbackContainer.appendChild(slider);
+    feedbackContainer.appendChild(button);
+    feedbackContainer.style.display = "block";
+}
+
+
+function createEmotionGraph(videoId, onSubmit) {
+    const emotionGraphContainer = document.getElementById('emotionGraphContainer');
+    const emotionSubmit = document.getElementById('emotionSubmit');
+    const emotionGraph = document.getElementById('emotionGraph');
+
+    // Clear any existing dots from the graph
+    const existingDots = emotionGraph.getElementsByClassName('emotion-dot');
+    while (existingDots[0]) {
+        existingDots[0].parentNode.removeChild(existingDots[0]);
+    }
+
+    // Create the dot and add it to the SVG
+    const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    dot.setAttribute("cx", 200);
+    dot.setAttribute("cy", 200);
+    dot.setAttribute("r", 10);
+    dot.setAttribute("fill", "red");
+    dot.setAttribute("class", "emotion-dot");
+    emotionGraph.appendChild(dot);
+
+    // Dragging state
+    let dragging = false;
+
+    const startDragging = (e) => {
+        dragging = true;
+    };
+
+    const stopDragging = (e) => {
+        dragging = false;
+    };
+
+    const dragDot = (e) => {
+        if (dragging) {
+            let x = e.offsetX;
+            let y = e.offsetY;
+
+            // Boundaries for SVG (400 x 400)
+            if (x < 0) x = 0;
+            if (x > 400) x = 400;
+            if (y < 0) y = 0;
+            if (y > 400) y = 400;
+
+            dot.setAttribute("cx", x);
+            dot.setAttribute("cy", y);
+        }
+    };
+
+    emotionGraph.addEventListener('mousedown', startDragging);
+    emotionGraph.addEventListener('mousemove', dragDot);
+    emotionGraph.addEventListener('mouseup', stopDragging);
+    emotionGraph.addEventListener('mouseleave', stopDragging);
+
+    // Handle submit button click
+    emotionSubmit.onclick = () => {
+        emotionGraphContainer.style.display = "none";
+        const valence = dot.getAttribute("cx");
+        const arousal = 400 - dot.getAttribute("cy"); // Subtract from 400 because SVG Y-axis goes from top to bottom
+
+        onSubmit(valence, arousal);
+    };
+
+    emotionGraphContainer.style.display = "block";
+}
+
+
+
+
 
 function startPart1() {
     const shuffledVideos = shuffleArray([...videos]);
@@ -32,17 +128,31 @@ function startPart1() {
             videoPlayer.onended = () => {
                 videoPlayer.style.display = "none";
                 clearButtons();
-                showFixationCross(playNextVideo);
+
+                createFeedbackForm(video.id, (rating) => {
+                    feedbackContainer.style.display = "none";
+                    createEmotionGraph(video.id, (valence, arousal) => {
+                        showFixationCross(playNextVideo);
+
+                        // Consolidate data into one object and add it to the participantChoices array
+                        participantChoices.push({
+                            part: "Practice",
+                            videoId: video.id,
+                            rating: rating,
+                            valence: valence, 
+                            arousal: arousal
+                        });
+                    });
+                });
             };
 
-            const playButton = createButton("Play", (reactionTime) => {  // Adjusted: added reactionTime parameter
+            const playButton = createButton("Play", (reactionTime) => {
                 playButton.style.display = "none";
                 videoPlayer.play();
-                participantChoices.push({
-                    part: "Practice",
-                    videoId: video.id,
-                    reactionTime: reactionTime,
-                });
+                
+                // Store the reaction time temporarily, to be added to the data object later
+                video.reactionTime = reactionTime;
+
                 currentVideoIndex++;
             });
 
@@ -56,6 +166,9 @@ function startPart1() {
 
     playNextVideo();
 }
+
+
+
 
 function startPart2() {
     showMessage("You have finished the first exercise. Press 'Next' to move on to the next one.");
@@ -84,42 +197,63 @@ function startPart3() {
             videoPlayer.src = video.src;
             videoPlayer.style.display = "block";
 
-            const watchButton = createButton("Watch this video", (reactionTime) => { // Adjusted: added reactionTime parameter
+            const watchButton = createButton("Watch this video", (reactionTime) => {
                 watchButton.style.display = "none";
                 skipButton.style.display = "none";
                 videoPlayer.play();
                 videoPlayer.onended = () => {
                     videoPlayer.style.display = "none";
                     clearButtons();
-                    showFixationCross(playNextVideo);
+
+                    createFeedbackForm(video.id, (rating) => {
+                        feedbackContainer.style.display = "none";
+                        createEmotionGraph(video.id, (valence, arousal) => {
+                            showFixationCross(playNextVideo);
+
+                            participantChoices.push({
+                                part: "Experimental_Choice",
+                                decision: "watch",
+                                videoId: video.id,
+                                reactionTime: reactionTime,
+                                rating: rating,
+                                valence: valence, 
+                                arousal: arousal
+                            });
+                        });
+                    });
                 };
-                participantChoices.push({
-                    part: "Part3",
-                    decision: "watch",
-                    videoId: video.id,
-                    reactionTime: reactionTime,
-                });
                 currentVideoIndex++;
             });
 
-            const skipButton = createButton("Skip this video", (reactionTime) => { // Adjusted: added reactionTime parameter
+            const skipButton = createButton("Skip this video", (reactionTime) => {
                 watchButton.style.display = "none";
                 skipButton.style.display = "none";
                 const randomVideo = playRandomVideo(video.id, videos);
                 videoPlayer.src = randomVideo.src;
                 videoPlayer.play();
+
                 videoPlayer.onended = () => {
                     videoPlayer.style.display = "none";
                     clearButtons();
-                    showFixationCross(playNextVideo);
+
+                    createFeedbackForm(video.id, (rating) => {
+                        feedbackContainer.style.display = "none";
+                        createEmotionGraph(video.id, (valence, arousal) => {
+                            showFixationCross(playNextVideo);
+
+                            participantChoices.push({
+                                part: "Experimental_Choice",
+                                decision: "skip",
+                                videoId: video.id,
+                                reactionTime: reactionTime,
+                                forcedVideoId: randomVideo.id,
+                                rating: rating,
+                                valence: valence, 
+                                arousal: arousal
+                            });
+                        });
+                    });
                 };
-                participantChoices.push({
-                    part: "Experimental_Choice",
-                    decision: "skip",
-                    videoId: video.id,
-                    reactionTime: reactionTime,
-                    forcedVideoId: randomVideo.id,
-                });
                 currentVideoIndex++;
             });
 
@@ -127,7 +261,7 @@ function startPart3() {
             addButton(watchButton);
             addButton(skipButton);
 
-            startTimer();  // Start the timer after all buttons are added
+            startTimer();
         } else {
             startPart4();
         }
@@ -146,7 +280,9 @@ function startPart4() {
 	startPart5();
 	}));
 }
-						   
+	
+
+
 function startPart5() {
     const watchRewardsAll = ["+1", "-1"];
     const skipRewardsAll = ["+1", "-1"];
@@ -170,23 +306,21 @@ function startPart5() {
             const watchReward = rewards.find(reward => reward.type === 'watch');
             const skipReward = rewards.find(reward => reward.type === 'skip');
 
-            // Decide randomly if reward is on watch or skip button
-            const rewardOnWatch = Math.random() < 0.5;
+            const rewardOnWatch = Math.random() < 0.5;  // Decide randomly if reward is on watch or skip button
 
             videoPlayer.src = video.src;
             videoPlayer.style.display = "block";
 
-        	const watchButtonText = rewardOnWatch ? `Watch this video (${watchReward.value})` : `Watch this video`;
-        	const watchButton = createButton(watchButtonText, getButtonCallback(video, watchReward, 'watch', rewardOnWatch));
+            const watchButtonText = rewardOnWatch ? `Watch this video (${watchReward.value})` : `Watch this video`;
+            const watchButton = createButton(watchButtonText, getButtonCallback(video, watchReward, 'watch', rewardOnWatch));
 
-        	const skipButtonText = !rewardOnWatch ? `Skip this video (${skipReward.value})` : `Skip this video`;
-        	const skipButton = createButton(skipButtonText, getButtonCallback(video, skipReward, 'skip', !rewardOnWatch));
+            const skipButtonText = !rewardOnWatch ? `Skip this video (${skipReward.value})` : `Skip this video`;
+            const skipButton = createButton(skipButtonText, getButtonCallback(video, skipReward, 'skip', !rewardOnWatch));
 
             clearButtons();
             addButton(watchButton);
             addButton(skipButton);
-			
-			startTimer(); 
+            startTimer();
 
             currentPairIndex++;
         } else {
@@ -194,51 +328,52 @@ function startPart5() {
         }
     }
 
-function getButtonCallback(video, reward, buttonType, rewardOnButton) {
-    return (reactionTime) => {
-        let randomVideo;
-        buttonsContainer.style.display = "none";  // hide buttons
+    function getButtonCallback(video, reward, buttonType, rewardOnButton) {
+        return (reactionTime) => {
+            buttonsContainer.style.display = "none";  // hide buttons
+            let randomVideo;
 
- if (reward.type === 'watch') {
-            videoPlayer.play();
-            videoPlayer.onended = () => {
+            const processEndOfVideo = () => {
                 videoPlayer.style.display = "none";
                 buttonsContainer.style.display = "";  // show buttons again
                 clearButtons();
-                showFixationCross(playNextVideo);
+
+                createFeedbackForm(video.id, (rating) => {
+                    feedbackContainer.style.display = "none";
+
+                    createEmotionGraph(video.id, (valence, arousal) => {
+                        showFixationCross(playNextVideo);
+
+                        participantChoices.push({
+                            part: "Experimental_Reward",
+                            decision: reward.type,
+                            videoId: video.id,
+                            reactionTime: reactionTime,
+                            forcedVideoId: reward.type === 'skip' ? randomVideo.id : undefined,
+                            reward: reward.value,
+                            rewardButton: rewardOnButton ? buttonType : (buttonType === 'watch' ? 'skip' : 'watch'),
+                            rating: rating,
+                            valence: valence, 
+                            arousal: arousal
+                        });
+                    });
+                });
             };
-        } else {
-            randomVideo = playRandomVideo(video.id, videos);
-            videoPlayer.src = randomVideo.src;
-            videoPlayer.play();
-            videoPlayer.onended = () => {
-                videoPlayer.style.display = "none";
-                buttonsContainer.style.display = "";  // show buttons again
-                clearButtons();
-                showFixationCross(playNextVideo);
-            };
-        }
 
-
-        participantChoices.push({
-            part: "Experimental_Reward",
-            decision: reward.type,
-            videoId: video.id,
-            reactionTime: reactionTime,
-            forcedVideoId: reward.type === 'skip' ? randomVideo.id : undefined,
-            reward: reward.value,  // Always record the reward value
-            rewardButton: rewardOnButton ? buttonType : (buttonType === 'watch' ? 'skip' : 'watch'),
-        });
-    };
-}
-
-
+            if (reward.type === 'watch') {
+                videoPlayer.play();
+                videoPlayer.onended = processEndOfVideo;
+            } else {
+                randomVideo = playRandomVideo(video.id, videos);
+                videoPlayer.src = randomVideo.src;
+                videoPlayer.play();
+                videoPlayer.onended = processEndOfVideo;
+            }
+        };
+    }
 
     playNextVideo();
 }
-
-
-
 
 
 function startPart6() {
@@ -247,7 +382,6 @@ function startPart6() {
 	generateCSV(participantChoices);
 	
 }
-
 
 function showMessage(text) {
     message.innerText = text;
@@ -264,10 +398,9 @@ function createButton(text, onClick) {
     return button;
 }
 
-// Update addButton function:
 function addButton(button) {
     buttonsContainer.appendChild(button);
-    startTimer(); // Start the timer when a button is added
+    startTimer(); 
 }
 
 function clearButtons() {
@@ -292,7 +425,7 @@ function shuffleArray(array) {
 
 
 function generateCSV(participantChoices) {
-    const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton"];
+    const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
     const csvRows = [header];
 
     for (const row of participantChoices) {
@@ -304,6 +437,9 @@ function generateCSV(participantChoices) {
             row.forcedVideoId || "",
             row.reward || "",
             row.rewardButton || "",
+			row.rating || "",
+			row.valence || "", 
+            row.arousal || "", 
         ];
         csvRows.push(rowData);
     }
