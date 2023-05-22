@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "single-scholar-387519",
+  "private_key_id": "acc845a9b8b349df611d9669f526d996328f7b3a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCaDSrCCHkVquq2\nPuYyKmkMXuQv6hx/RsFZymtXa5pDGW1OolYzLEfs4Mc73Xpv8iTle40oE+L/PfdC\nneLvSf5G1y+omMlwVcyec/OIFADW5v/DIhFA29UnuyJp9FKOQ4xdD6PpGan8Tw1k\nhCwJiHlkXIZr21UqfCKZ6JCXyuk5vVKRaBg7DlDJp3h9uycIUgEbvQamb7np4KKK\n+t1/ASYfX7p2ZQhbbi7Q4fojn6vTDLgPCBlRsCuIELlQSMJ1rZe3s7Ga/8UOagTG\nF6JjSs74ykFdxZS7hgLPEKKe746uyeNcdnqdkuNx2BsZC4rVXIZ8OA7L7xzm31b9\nCfhl9jnLAgMBAAECggEAP/HSO0twE3XoSnDOdalUBH4JAviPDqfMj1xt9RIlrM+L\np1XMKR6q1mExYiCbd4dQGG+SFr42fdN3ZNALyF7y7O3aiwWsq/P5ZRZlUqlW9d1Z\n8eIcvkrh7kWH0epIMGRKicB5vcLY4/HecchJTUW4edfMNk4LSoDPjgpSpqdj6wKN\nk8BJf72WsJQWdBBf0AWyKAWsUXqA/I8fSNfAHeOt6y+DvPNv5si2mLyPtps9dImp\n71avJRvPbe/YrifxCaWcWDysuCCa2ogADiQNOjFWt+xzJwzAKVlTrNG3IM8zE/VE\nTew4WUKHvbViQsHoI6sih7TmixBloXIZKXUSoeP/lQKBgQDPZwqwijUeW/ClsylE\nnoROftoRzXrgJhyvFVuvaC6iBSY9kH+cIQyGqBS0oZ1gF0eo+5bYurtc1/Q52Nw0\naKP9//aotq7uE/Ys8BdND1gfDofE0mw8TAk04LVzoivi1X1XmH83FNXaOf9Rn1Wc\nKGTvNjS5TpI/QghyW8vYAWVG/wKBgQC+JeHLiVn8W9E/eOu6Z8Gyk+3nBGqC2SZf\nbVStU/NT5e0QxDIB2pEcV7Fx6ifv/fjNln9SPIVyfYu6xF98i+UjrFUoIJn4J2mt\nzDQzaPTZBJWLF9I9qCYIwBhNoL167miJAaR1MZ3dEPh8m9O6I/mixlExy7mZqxJf\nGSi+spB5NQKBgHfouRNsNF3DBhSmypszkobXbDiSthHVtwu6q3F0KFHf7EX3vu+D\nY/yOPLpaHeSqUPHv0zymaSC6cibnrBhYz0dQr0jHpcdbnx5ICRCyaF48Rl6S0aTi\nyQfbSsz526mfiIIWVqZ/00wB8A0+s34/FGwAyObB+Ge+Q6fqTqYp2GX9AoGAcb4x\nYlKIPJgkBGbuA7R7PrqUrgOLPzhsZtr8sy4ruT0p4USrcUZwVVbzs2PRfhMbWMe0\n49mGLiWBhzhesh7w87Trv7Q4xiO1aJxlgXdAN+0xE2IthmpmTgeywgTsM3QXnhUY\nbm4+s3WqXsfMEGXit4cQHMxz+sNFmxNutxwTph0CgYAvhsnHXLyB667+Schef6H2\nou2exgyW+P3X68v4nmxzytpeK/7aw9MgM5LM1yTzPv2ygMn/TdaYMoEkNVKy49w5\nQlGRps/B/tyQ9rz8vU2htxOPhc/Uozv3azYqfeZYucGFamc6nlX5u4JZfNrbHTy/\nVfPpff2yntJ+TKkKZTpuUA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "emotion-regulation@single-scholar-387519.iam.gserviceaccount.com",
+  "client_id": "108835143172613871278",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/emotion-regulation%40single-scholar-387519.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
