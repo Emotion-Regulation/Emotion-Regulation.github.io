@@ -450,7 +450,7 @@ function generateAndUploadCSV(participantChoices) {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     
     // Upload to Dropbox
-    const accessToken = process.env.API_KEY;
+    const accessToken = window.process.env.API_KEY;
     const uploadUrl = 'https://content.dropboxapi.com/2/files/upload';
     const filePath = '/participant_choices.csv';
   
