@@ -379,7 +379,7 @@ function startPart5() {
 function startPart6() {
     showMessage("Congratulations! You have completed this study :)");
     clearButtons();
-	generateCSV(participantChoices);
+	generateAndUploadCSV(participantChoices);
 	
 }
 
@@ -424,54 +424,63 @@ function shuffleArray(array) {
 }
 
 
-const axios = require('axios');
 
-async function generateAndUploadCSV(participantChoices) {
-  const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
-  const csvRows = [header];
 
-  for (const row of participantChoices) {
-    const rowData = [
-      row.part,
-      row.decision,
-      row.videoId,
-      row.reactionTime,
-      row.forcedVideoId || "",
-      row.reward || "",
-      row.rewardButton || "",
-      row.rating || "",
-      row.valence || "",
-      row.arousal || "",
-    ];
-    csvRows.push(rowData);
-  }
-
-  const csvContent = csvRows.map(e => e.join(",")).join("\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+function generateAndUploadCSV(participantChoices) {
+    const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
+    const csvRows = [header];
   
-  // Upload to Dropbox
-  const accessToken = 'sl.Be4-dVaqS29c9ZFPFPrraWuTAie1zTm6llKJaRjR2_aLXiRi4ivsVZkbkKK906f8mvu3wU19vHAqVbWjCROVcw--a19vHGjurcQ4CWtwKCHjCx0fahhSpOOCWEgsiR3nANzqze4';
-  const uploadUrl = 'https://content.dropboxapi.com/2/files/upload';
-  const filePath = '/participant_choices.csv';
-
-  const headers = {
-    'Authorization': 'Bearer ' + accessToken,
-    'Content-Type': 'application/octet-stream',
-    'Dropbox-API-Arg': JSON.stringify({
-      path: filePath,
-      mode: 'add',
-      autorename: true,
-      mute: false
-    })
-  };
-
-  try {
-    const response = await axios.post(uploadUrl, blob, { headers });
-    console.log('File uploaded successfully:', response.data);
-  } catch (error) {
-    console.error('Error uploading file:', error.response.data);
+    for (const row of participantChoices) {
+      const rowData = [
+        row.part,
+        row.decision,
+        row.videoId,
+        row.reactionTime,
+        row.forcedVideoId || "",
+        row.reward || "",
+        row.rewardButton || "",
+        row.rating || "",
+        row.valence || "",
+        row.arousal || "",
+      ];
+      csvRows.push(rowData);
+    }
+  
+    const csvContent = csvRows.map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    
+    // Upload to Dropbox
+    const accessToken = process.env.API_KEY;
+    const uploadUrl = 'https://content.dropboxapi.com/2/files/upload';
+    const filePath = '/participant_choices.csv';
+  
+    const headers = {
+      'Authorization': 'Bearer ' + accessToken,
+      'Content-Type': 'application/octet-stream',
+      'Dropbox-API-Arg': JSON.stringify({
+        path: filePath,
+        mode: 'add',
+        autorename: true,
+        mute: false
+      })
+    };
+  
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', uploadUrl, true);
+    Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
+    
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+          console.log('File uploaded successfully:', xhr.responseText);
+        } else {
+          console.error('Error uploading file:', xhr.responseText);
+        }
+      }
+    };
+    
+    xhr.send(blob);
   }
-}
 
 
 startPart1();       
