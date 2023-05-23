@@ -424,63 +424,54 @@ function shuffleArray(array) {
 }
 
 
-function generateCSV(participantChoices) {
-    const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
-    const csvRows = [header];
+const axios = require('axios');
 
-    for (const row of participantChoices) {
-        const rowData = [
-            row.part,
-            row.decision,
-            row.videoId,
-            row.reactionTime,
-            row.forcedVideoId || "",
-            row.reward || "",
-            row.rewardButton || "",
-            row.rating || "",
-            row.valence || "",
-            row.arousal || "",
-        ];
-        csvRows.push(rowData);
-    }
+async function generateAndUploadCSV(participantChoices) {
+  const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
+  const csvRows = [header];
 
-    const csvContent = csvRows.map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const formData = new FormData();
-    formData.append("file", blob, "participant_choices.csv");
-  
-    google.accounts.id.initialize({
-      client_id: "AIzaSyBqWAT28iKL1M0R_9V4yM3mwMWypURKdNk",
-      callback: handleCredentialResponse,
-      api_key: "597506658875-k9norih0savdd8mj7njeacqhb071e8sq.apps.googleusercontent.com"
-    });
-  
-    function handleCredentialResponse(response) {
-      if (response.credential) {
-        const authCredential = response.credential;
-        const accessToken = authCredential.accessToken;
-  
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart");
-        xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
-  
-        xhr.onload = function () {
-          if (xhr.status === 200) {
-            console.log("CSV file uploaded successfully. File ID:", JSON.parse(xhr.responseText).id);
-          } else {
-            console.error("Error uploading CSV file:", xhr.statusText);
-          }
-        };
-  
-        xhr.onerror = function () {
-          console.error("Error uploading CSV file:", xhr.statusText);
-        };
-  
-        xhr.send(formData);
-      } else {
-        console.error("Error getting user credentials:", response.error);
-      }
-    }
+  for (const row of participantChoices) {
+    const rowData = [
+      row.part,
+      row.decision,
+      row.videoId,
+      row.reactionTime,
+      row.forcedVideoId || "",
+      row.reward || "",
+      row.rewardButton || "",
+      row.rating || "",
+      row.valence || "",
+      row.arousal || "",
+    ];
+    csvRows.push(rowData);
   }
+
+  const csvContent = csvRows.map(e => e.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  
+  // Upload to Dropbox
+  const accessToken = 'sl.Be4-dVaqS29c9ZFPFPrraWuTAie1zTm6llKJaRjR2_aLXiRi4ivsVZkbkKK906f8mvu3wU19vHAqVbWjCROVcw--a19vHGjurcQ4CWtwKCHjCx0fahhSpOOCWEgsiR3nANzqze4';
+  const uploadUrl = 'https://content.dropboxapi.com/2/files/upload';
+  const filePath = '/participant_choices.csv';
+
+  const headers = {
+    'Authorization': 'Bearer ' + accessToken,
+    'Content-Type': 'application/octet-stream',
+    'Dropbox-API-Arg': JSON.stringify({
+      path: filePath,
+      mode: 'add',
+      autorename: true,
+      mute: false
+    })
+  };
+
+  try {
+    const response = await axios.post(uploadUrl, blob, { headers });
+    console.log('File uploaded successfully:', response.data);
+  } catch (error) {
+    console.error('Error uploading file:', error.response.data);
+  }
+}
+
 
 startPart1();       
