@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4-Part Task</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
     <div id="mainContainer">
@@ -16,22 +14,23 @@
         <div id="buttonsContainer"></div>
         <div id="feedbackContainer" style="display:none;"></div> 
 		
-        <div id="emotionGraphContainer" style="display: none;">
-            <h2>How do you feel?</h2>
-            <svg id="emotionGraph" width="400" height="400" style="background: #eee; display: block; margin: auto;">
-                <text x="10" y="210" transform="rotate(-90 10,210)">Negative</text>
-                <text x="370" y="210" transform="rotate(90 370,210)">Positive</text>
-                <text x="200" y="390" text-anchor="middle">Passive</text>
-                <text x="200" y="20" text-anchor="middle">Active</text>
-            </svg>
-            <button id="emotionSubmit" style="display: block; margin: 20px auto;">Submit</button>
-        </div>
+		
+<div id="emotionGraphContainer" style="display: none;">
+    <h2>How do you feel?</h2>
+    <svg id="emotionGraph" width="400" height="400" style="background: #eee; display: block; margin: auto;">
+        <text x="10" y="210" transform="rotate(-90 10,210)">Negative</text>
+        <text x="370" y="210" transform="rotate(90 370,210)">Positive</text>
+        <text x="200" y="390" text-anchor="middle">Passive</text>
+        <text x="200" y="20" text-anchor="middle">Active</text>
+    </svg>
+    <button id="emotionSubmit" style="display: block; margin: 20px auto;">Submit</button>
+</div>
     </div>
+    <div id="signinButton" style="display: none;"></div>
+    </div>
+    <!-- Add the Google Sign-In and Google Drive API scripts -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <script src="script.js"></script>
-    <!-- <script>
-        // Add the following line to load the updated JavaScript file
-        // Make sure the path to the file is correct
-        document.write('<script src="script.js?' + new Date().getTime() + '"><\/script>');
-    </script> -->
 </body>
 </html>

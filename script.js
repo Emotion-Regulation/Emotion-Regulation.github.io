@@ -423,6 +423,7 @@ function shuffleArray(array) {
     return array;
 }
 
+
 function generateCSV(participantChoices) {
     const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
     const csvRows = [header];
@@ -448,71 +449,37 @@ function generateCSV(participantChoices) {
     const formData = new FormData();
     formData.append("file", blob, "participant_choices.csv");
 
-    const handleCredentialResponse = (response) => {
-        if (response.credential) {
-            const credential = response.credential;
-            gapi.client.init({
-                apiKey: "AIzaSyBqWAT28iKL1M0R_9V4yM3mwMWypURKdNk",
-                clientId: "YOUR_CLIENT_ID",
-                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-                scope: "597506658875-k9norih0savdd8mj7njeacqhb071e8sq.apps.googleusercontent.com",
-            }).then(() => {
-                gapi.auth2.getAuthInstance().signIn().then(() => {
-                    gapi.client.drive.files.create({
-                        resource: { name: "participant_choices.csv", mimeType: "text/csv" },
-                        media: { mimeType: "text/csv", body: formData },
-                        fields: "id",
-                    }).then((response) => {
-                        console.log("CSV file uploaded successfully. File ID:", response.result.id);
-                    }, (error) => {
-                        console.error("Error uploading CSV file:", error);
+    gapi.load("signin2", () => {
+        gapi.signin2.render('signinButton', {
+            'scope': 'profile email',
+            'onSuccess': (user) => {
+                gapi.load("client", () => {
+                    gapi.client.init({
+                        apiKey: "AIzaSyBqWAT28iKL1M0R_9V4yM3mwMWypURKdNk",
+                        clientId: "597506658875-k9norih0savdd8mj7njeacqhb071e8sq.apps.googleusercontent.com",
+                        discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+                        scope: "https://www.googleapis.com/auth/drive.file",
+                    }).then(() => {
+                        gapi.auth2.getAuthInstance().signIn().then(() => {
+                            gapi.client.drive.files.create({
+                                resource: { name: "participant_choices.csv", mimeType: "text/csv" },
+                                media: { mimeType: "text/csv", body: formData },
+                                fields: "id",
+                            }).then((response) => {
+                                console.log("CSV file uploaded successfully. File ID:", response.result.id);
+                            }, (error) => {
+                                console.error("Error uploading CSV file:", error);
+                            });
+                        });
                     });
                 });
-            });
-        } else {
-            console.error("Error:", response.error);
-        }
-    };
-
-    gapi.load("client:auth2", () => {
-        google.accounts.id.initialize({
-            client_id: "YOUR_CLIENT_ID",
-            callback: handleCredentialResponse,
+            },
+            'onFailure': (error) => {
+                console.error("Error signing in:", error);
+            }
         });
     });
 }
-
-// function generateCSV(participantChoices) {
-//     const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
-//     const csvRows = [header];
-
-//     for (const row of participantChoices) {
-//         const rowData = [
-//             row.part,
-//             row.decision,
-//             row.videoId,
-//             row.reactionTime,
-//             row.forcedVideoId || "",
-//             row.reward || "",
-//             row.rewardButton || "",
-// 			row.rating || "",
-// 			row.valence || "", 
-//             row.arousal || "", 
-//         ];
-//         csvRows.push(rowData);
-//     }
-
-//     const csvContent = csvRows.map(e => e.join(",")).join("\n");
-//     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-//     const url = URL.createObjectURL(blob);
-//     const link = document.createElement("a");
-//     link.setAttribute("href", url);
-//     link.setAttribute("download", "participant_choices.csv");
-//     link.style.display = "none";
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
-// }
 
 
 startPart1();       
