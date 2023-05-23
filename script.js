@@ -448,38 +448,39 @@ function generateCSV(participantChoices) {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const formData = new FormData();
     formData.append("file", blob, "participant_choices.csv");
-
-    gapi.load("signin2", () => {
-        gapi.signin2.render('signinButton', {
-            'scope': 'profile email',
-            'onSuccess': (user) => {
-                gapi.load("client", () => {
-                    gapi.client.init({
-                        apiKey: "AIzaSyBqWAT28iKL1M0R_9V4yM3mwMWypURKdNk",
-                        clientId: "597506658875-k9norih0savdd8mj7njeacqhb071e8sq.apps.googleusercontent.com",
-                        discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-                        scope: "https://www.googleapis.com/auth/drive.file",
-                    }).then(() => {
-                        gapi.auth2.getAuthInstance().signIn().then(() => {
-                            gapi.client.drive.files.create({
-                                resource: { name: "participant_choices.csv", mimeType: "text/csv" },
-                                media: { mimeType: "text/csv", body: formData },
-                                fields: "id",
-                            }).then((response) => {
-                                console.log("CSV file uploaded successfully. File ID:", response.result.id);
-                            }, (error) => {
-                                console.error("Error uploading CSV file:", error);
-                            });
-                        });
-                    });
-                });
-            },
-            'onFailure': (error) => {
-                console.error("Error signing in:", error);
-            }
-        });
+  
+    google.accounts.id.initialize({
+      client_id: "AIzaSyBqWAT28iKL1M0R_9V4yM3mwMWypURKdNk",
+      callback: handleCredentialResponse,
+      api_key: "597506658875-k9norih0savdd8mj7njeacqhb071e8sq.apps.googleusercontent.com"
     });
-}
-
+  
+    function handleCredentialResponse(response) {
+      if (response.credential) {
+        const authCredential = response.credential;
+        const accessToken = authCredential.accessToken;
+  
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart");
+        xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+  
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            console.log("CSV file uploaded successfully. File ID:", JSON.parse(xhr.responseText).id);
+          } else {
+            console.error("Error uploading CSV file:", xhr.statusText);
+          }
+        };
+  
+        xhr.onerror = function () {
+          console.error("Error uploading CSV file:", xhr.statusText);
+        };
+  
+        xhr.send(formData);
+      } else {
+        console.error("Error getting user credentials:", response.error);
+      }
+    }
+  }
 
 startPart1();       
