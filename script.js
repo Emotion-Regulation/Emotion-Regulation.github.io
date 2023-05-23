@@ -448,24 +448,36 @@ function generateCSV(participantChoices) {
     const formData = new FormData();
     formData.append("file", blob, "participant_choices.csv");
 
-    gapi.load("client:auth2", () => {
-        gapi.client.init({
-            apiKey: "AIzaSyBqWAT28iKL1M0R_9V4yM3mwMWypURKdNk",
-            clientId: "597506658875-k9norih0savdd8mj7njeacqhb071e8sq.apps.googleusercontent.com",
-            discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-            scope: "https://www.googleapis.com/auth/drive.file",
-        }).then(() => {
-            gapi.auth2.getAuthInstance().signIn().then(() => {
-                gapi.client.drive.files.create({
-                    resource: { name: "participant_choices.csv", mimeType: "text/csv" },
-                    media: { mimeType: "text/csv", body: formData },
-                    fields: "id",
-                }).then((response) => {
-                    console.log("CSV file uploaded successfully. File ID:", response.result.id);
-                }, (error) => {
-                    console.error("Error uploading CSV file:", error);
+    const handleCredentialResponse = (response) => {
+        if (response.credential) {
+            const credential = response.credential;
+            gapi.client.init({
+                apiKey: "AIzaSyBqWAT28iKL1M0R_9V4yM3mwMWypURKdNk",
+                clientId: "YOUR_CLIENT_ID",
+                discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
+                scope: "597506658875-k9norih0savdd8mj7njeacqhb071e8sq.apps.googleusercontent.com",
+            }).then(() => {
+                gapi.auth2.getAuthInstance().signIn().then(() => {
+                    gapi.client.drive.files.create({
+                        resource: { name: "participant_choices.csv", mimeType: "text/csv" },
+                        media: { mimeType: "text/csv", body: formData },
+                        fields: "id",
+                    }).then((response) => {
+                        console.log("CSV file uploaded successfully. File ID:", response.result.id);
+                    }, (error) => {
+                        console.error("Error uploading CSV file:", error);
+                    });
                 });
             });
+        } else {
+            console.error("Error:", response.error);
+        }
+    };
+
+    gapi.load("client:auth2", () => {
+        google.accounts.id.initialize({
+            client_id: "YOUR_CLIENT_ID",
+            callback: handleCredentialResponse,
         });
     });
 }
