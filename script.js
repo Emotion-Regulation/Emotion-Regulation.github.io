@@ -430,7 +430,7 @@ function generateAndUploadCSV(participantChoices) {
     const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
     const csvRows = [header];
   
-    const csvContent = participantChoices.map(row => {
+    for (const row of participantChoices) {
       const rowData = [
         row.part,
         row.decision,
@@ -443,16 +443,17 @@ function generateAndUploadCSV(participantChoices) {
         row.valence || "",
         row.arousal || "",
       ];
-      return rowData.join(",");
-    }).join("\n");
+      csvRows.push(rowData);
+    }
   
+    const csvContent = csvRows.map(row => row.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   
     // Upload to Netlify serverless function
     const uploadUrl = '/.netlify/functions/upload-csv'; // Replace with the appropriate Netlify serverless function URL
   
     const headers = {
-      'Content-Type': 'application/json', // Update the content type to JSON
+      'Content-Type': 'application/octet-stream',
       // Add any additional headers required by your serverless function
     };
   
@@ -470,9 +471,7 @@ function generateAndUploadCSV(participantChoices) {
       }
     };
   
-    // Convert the data to JSON and send it as the request body
-    const requestData = JSON.stringify({ participantChoices: [participantChoices] });
-    xhr.send(requestData);
+    xhr.send(blob);
   }
   
 
