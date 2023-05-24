@@ -1,7 +1,7 @@
 const fetch = require('isomorphic-fetch');
 
 exports.handler = async function(event, context, callback) {
-  const accessToken = process.env.API_TOKEN;
+  const accessToken = process.env.api;
   const uploadUrl = 'https://content.dropboxapi.com/2/files/upload';
   const filePath = '/participant_choices.csv';
 
