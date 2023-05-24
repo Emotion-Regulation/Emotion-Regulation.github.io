@@ -1,7 +1,7 @@
 const fetch = require('isomorphic-fetch');
 
 exports.handler = async function(event, context, callback) {
-  const { participantChoices } = JSON.parse(event.body);
+  const {participantChoices} = JSON.parse(event.body);
   console.log('participantChoices:', participantChoices);
 
   const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
