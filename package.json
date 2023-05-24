@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "aws-sdk": "^2.1384.0",
     "isomorphic-fetch": "^3.0.0",
     "node-fetch": "^3.3.1"
   }
