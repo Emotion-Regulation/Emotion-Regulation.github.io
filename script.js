@@ -449,7 +449,7 @@ function generateAndUploadCSV(participantChoices) {
     const csvContent = csvRows.map(e => e.join(",")).join("\n");
     
     // Upload to serverless function
-    const uploadUrl = '/.netlify/functions/upload-csv'; // Replace with the actual serverless function URL
+    const uploadUrl = '/.netlify/functions/upload-csv'; 
   
     const xhr = new XMLHttpRequest();
     xhr.open('POST', uploadUrl, true);
