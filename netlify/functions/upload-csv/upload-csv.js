@@ -1,36 +1,13 @@
 const fetch = require('isomorphic-fetch');
 
 exports.handler = async function(event, context, callback) {
-  const {participantChoices} = JSON.parse(event.body);
-  console.log('participantChoices:', participantChoices);
-
-  const header = ["part", "decision", "videoId", "reactionTime", "forcedVideoId", "reward", "rewardButton", "rating", "valence", "arousal"];
-  const csvRows = [header];
-
-  for (const row of participantChoices) {
-    const rowData = [
-      row.part,
-      row.decision,
-      row.videoId,
-      row.reactionTime,
-      row.forcedVideoId || "",
-      row.reward || "",
-      row.rewardButton || "",
-      row.rating || "",
-      row.valence || "",
-      row.arousal || "",
-    ];
-    csvRows.push(rowData);
-  }
-
-  const csvContent = csvRows.map(row => row.join(",")).join("\n");
-
-  const accessToken = process.env.api; 
+  const accessToken = process.env.DROPBOX_ACCESS_TOKEN;
   const uploadUrl = 'https://content.dropboxapi.com/2/files/upload';
   const filePath = '/participant_choices.csv';
 
+  const csvContent = event.body; // The CSV content received from the frontend
   const headers = {
-    'Authorization': `Bearer ${accessToken}`,
+    'Authorization': 'Bearer ' + accessToken,
     'Content-Type': 'application/octet-stream',
     'Dropbox-API-Arg': JSON.stringify({
       path: filePath,
@@ -43,26 +20,27 @@ exports.handler = async function(event, context, callback) {
   try {
     const response = await fetch(uploadUrl, {
       method: 'POST',
-      headers,
+      headers: headers,
       body: csvContent
     });
 
-    if (response.status === 200) {
-      const data = await response.json();
-      return callback(null, {
+    if (response.ok) {
+      const result = await response.json();
+      return {
         statusCode: 200,
-        body: JSON.stringify({ message: 'File uploaded successfully', data })
-      });
+        body: JSON.stringify({ message: 'File uploaded successfully', result })
+      };
     } else {
-      return callback(null, {
+      const error = await response.text();
+      return {
         statusCode: response.status,
-        body: JSON.stringify({ error: 'Error uploading file' })
-      });
+        body: JSON.stringify({ error })
+      };
     }
   } catch (error) {
-    return callback(null, {
+    return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' })
-    });
+      body: JSON.stringify({ error: 'An error occurred during file upload' })
+    };
   }
 };

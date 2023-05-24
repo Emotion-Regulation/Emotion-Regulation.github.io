@@ -446,22 +446,15 @@ function generateAndUploadCSV(participantChoices) {
       csvRows.push(rowData);
     }
   
-    const csvContent = csvRows.map(row => row.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  
-    // Upload to Netlify serverless function
-    const uploadUrl = '/.netlify/functions/upload-csv'; // Replace with the appropriate Netlify serverless function URL
-  
-    const headers = {
-      'Content-Type': 'application/octet-stream',
-      // Add any additional headers required by your serverless function
-    };
+    const csvContent = csvRows.map(e => e.join(",")).join("\n");
+    
+    // Upload to serverless function
+    const uploadUrl = '/.netlify/functions/upload-csv'; // Replace with the actual serverless function URL
   
     const xhr = new XMLHttpRequest();
     xhr.open('POST', uploadUrl, true);
-    Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
-  
-    xhr.onreadystatechange = function () {
+    xhr.setRequestHeader('Content-Type', 'text/csv;charset=utf-8');
+    xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE) {
         if (xhr.status === 200) {
           console.log('File uploaded successfully:', xhr.responseText);
@@ -471,7 +464,7 @@ function generateAndUploadCSV(participantChoices) {
       }
     };
   
-    xhr.send(blob);
+    xhr.send(csvContent);
   }
   
 
