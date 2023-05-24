@@ -457,9 +457,9 @@ function generateAndUploadCSV(participantChoices) {
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE) {
         if (xhr.status === 200) {
-          console.log('File uploaded successfully:', xhr.responseText);
+          console.log('File uploaded successfully:');
         } else {
-          console.error('Error uploading file:', xhr.responseText);
+          console.error('Error uploading file:');
         }
       }
     };

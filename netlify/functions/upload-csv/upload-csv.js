@@ -28,7 +28,7 @@ exports.handler = async function(event, context, callback) {
     const response = await s3.upload(params).promise();
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'File uploaded successfully', response }),
+      body: JSON.stringify({ message: 'File uploaded successfully'}),
     };
   } catch (error) {
     return {
