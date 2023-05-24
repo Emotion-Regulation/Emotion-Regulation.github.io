@@ -448,27 +448,19 @@ function generateAndUploadCSV(participantChoices) {
   
     const csvContent = csvRows.map(e => e.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    
-    // Upload to Dropbox
-    const accessToken = window.process.env.API_KEY;
-    const uploadUrl = 'https://content.dropboxapi.com/2/files/upload';
-    const filePath = '/participant_choices.csv';
+  
+    // Upload to Netlify serverless function
+    const uploadUrl = '/.netlify/functions/upload-csv';  // Replace with the appropriate Netlify serverless function URL
   
     const headers = {
-      'Authorization': 'Bearer ' + accessToken,
       'Content-Type': 'application/octet-stream',
-      'Dropbox-API-Arg': JSON.stringify({
-        path: filePath,
-        mode: 'add',
-        autorename: true,
-        mute: false
-      })
+      // Add any additional headers required by your serverless function
     };
   
     const xhr = new XMLHttpRequest();
     xhr.open('POST', uploadUrl, true);
     Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
-    
+  
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE) {
         if (xhr.status === 200) {
@@ -478,9 +470,10 @@ function generateAndUploadCSV(participantChoices) {
         }
       }
     };
-    
+  
     xhr.send(blob);
   }
+  
 
 
 startPart1();       
